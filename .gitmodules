@@ -1,0 +1,3 @@
+[submodule "e-wallet-simulation-client"]
+	path = e-wallet-simulation-client
+	url = https://github.com/rishabghosh/e-wallet-simulation-client.git
