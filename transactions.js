@@ -2,6 +2,7 @@ const { CONNECTION } = require("./databaseConfig");
 
 const updateAmountToDB = function(req, res) {
   const details = JSON.parse(req.body);
+  console.log(details)
 
   const queryMessage = `update users set amount=${
     details.newAmount
