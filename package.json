@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd e-wallet-simulation-client && npm run build && cd .. && node app.js"
+    "start": "cd e-wallet-simulation-client && npm run build && cd .. && nodemon app.js"
   },
   "keywords": [],
   "author": "",
