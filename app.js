@@ -1,9 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
-const {addSignUpCredentials} = require("./signup")
+const { addSignUpCredentials } = require("./signup");
 const { verifyLoginCredentials } = require("./loginHandler");
-const { updateAmountToDB } = require("./transactions");
+const { updateAmountToDB, sendCurrentAmount } = require("./transactions");
 
 const PORT = process.env.PORT || 8080;
 const CLIENT_ADDRESS = "/e-wallet-simulation-client/build";
@@ -14,6 +14,7 @@ app.use(bodyParser.text());
 app.post("/loginCredentials", verifyLoginCredentials);
 app.post("/signupCredentials", addSignUpCredentials);
 app.post("/updateAmount", updateAmountToDB);
+app.post("/getCurrentAmount", sendCurrentAmount);
 app.use(express.static(__dirname + CLIENT_ADDRESS));
 
 app.listen(PORT, () => `server is listening at port ${PORT}`);
