@@ -25,6 +25,13 @@ class QueryMessage {
     return result.join(SPACE);
   }
 
+  requestPassword(username) {
+    const result = [];
+    result.push(`SELECT ${this.password} FROM ${this.NameOfTable}`);
+    result.push(`WHERE ${this.username} = "${username}";`);
+    return result.join(SPACE);
+  }
+
   checkUsername(username) {
     const result = [];
     result.push(`SELECT ${this.username} FROM ${this.NameOfTable}`);
@@ -42,6 +49,13 @@ class QueryMessage {
       `VALUES ("${username}", "${password}", "${name}", ${this.initialAmount})`
     );
 
+    return result.join(SPACE);
+  }
+
+  queryProfileDetails(username) {
+    const result = [];
+    result.push(`SELECT ${this.name}, ${this.amount} FROM ${this.NameOfTable}`);
+    result.push(`WHERE ${this.username} = "${username}";`);
     return result.join(SPACE);
   }
 }

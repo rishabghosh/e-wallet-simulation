@@ -1,35 +1,25 @@
 const { CONNECTION } = require("./databaseConfig");
+const queryMessage = require("./querry");
+const { handleQuery } = require("./utils");
 
 const verifyLoginCredentials = function(req, res) {
-  const details = JSON.parse(req.body);
+  const { username, password } = JSON.parse(req.body);
+  const requestPassword = queryMessage.requestPassword(username);
+  const queryProfileDetails = queryMessage.queryProfileDetails(username);
 
-  const q = `select password from users where username = '${
-    details.username
-  }'; `;
+  const sendResult = result => {
+    res.json(result);
+  };
 
-  CONNECTION.query(q, (err, result) => {
-    if (err) {
-      console.error("errror is --", err);
-      return;
-    }
-    
-    //should update and quried from database
-    if (result[0] && details.password === result[0].password) {
-      const queryMessage = `select name, amount from users where username = '${
-        details.username
-      }'; `;
-
-      CONNECTION.query(queryMessage, (err, result) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        res.json(result);
-      });
+  const getProfile = function(result) {
+    if (result[0] && password === result[0].password) {
+      CONNECTION.query(queryProfileDetails, handleQuery.bind(null, sendResult));
       return;
     }
     res.json({ incorrectCredentials: true });
-  });
+  };
+
+  CONNECTION.query(requestPassword, handleQuery.bind(null, getProfile));
 };
 
 module.exports = { verifyLoginCredentials };
