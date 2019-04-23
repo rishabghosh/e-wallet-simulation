@@ -1,34 +1,36 @@
 const { CONNECTION } = require("./databaseConfig");
+const queryMessage = require("./querry.js");
+const { handleQuery } = require("./utils");
 
 const addSignUpCredentials = function(req, res) {
   const { username, password, name } = JSON.parse(req.body);
+  const checkUsernameMessage = queryMessage.checkUsername(username);
+  const insertCredentialsMessage = queryMessage.insertCredentials(
+    username,
+    password,
+    name
+  );
 
-  const checkUsername = `select username from users where username = "${username}"`;
-
-  const insertCredentials =
-    "insert into users (username, password, name, amount)" +
-    `values("${username}", "${password}", "${name}", 0)`;
-
-  CONNECTION.query(checkUsername, (err, result) => {
-    if (err) {
-      console.error("error while checking username ---- \n", err);
-      return;
-    }
+  const sendAvailability = function(result) {
+    const sendAvailable = function() {
+      res.json({ duplicateUsername: false });
+    };
 
     if (result.length) {
       res.json({ duplicateUsername: true });
       return;
     }
 
-    CONNECTION.query(insertCredentials, (err, result) => {
-      if (err) {
-        console.error("error while inserting --- \n", err);
-        return;
-      }
-      console.log(result);
-      res.json({ duplicateUsername: false });
-    });
-  });
+    CONNECTION.query(
+      insertCredentialsMessage,
+      handleQuery.bind(null, sendAvailable)
+    );
+  };
+
+  CONNECTION.query(
+    checkUsernameMessage,
+    handleQuery.bind(null, sendAvailability)
+  );
 };
 
 module.exports = { addSignUpCredentials };

@@ -1,13 +1,6 @@
 const { CONNECTION } = require("./databaseConfig");
 const queryMessage = require("./querry");
-
-const handleQuery = function(next, err, result) {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  next(result);
-};
+const { handleQuery } = require("./utils");
 
 const updateAmountToDB = function(req, res) {
   const { newAmount, username } = JSON.parse(req.body);
@@ -24,8 +17,6 @@ const updateAmountToDB = function(req, res) {
 
   CONNECTION.query(updateAmountMessage, handleQuery.bind(null, updateAmount));
 };
-
-
 
 const sendCurrentAmount = function(req, res) {
   const { username } = JSON.parse(req.body);
