@@ -30,8 +30,60 @@ const sendCurrentAmount = function(req, res) {
 };
 
 const handleTransaction = function(req, res) {
-  const { usernameOfReceiver, payAmount } = JSON.parse(req.body);
-  const requestAmount = queryMessage.requestAmount(usernameOfReceiver);
+  const { username, usernameOfReceiver, payAmount } = JSON.parse(req.body);
+  const requestAmountOfSender = queryMessage.requestAmount(username);
+  const requestAmountOfReceiver = queryMessage.requestAmount(
+    usernameOfReceiver
+  );
+
+  CONNECTION.query(requestAmountOfSender, (err, result) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const { amount } = result[0];
+    const newAmountOfSender = amount - +payAmount;
+    if (newAmountOfSender < 0) {
+      res.json({ failed: true });
+      return;
+    }
+    const setAmountOfSender = queryMessage.updateAmount(
+      newAmountOfSender,
+      username
+    );
+    const doNothing = () => {};
+    CONNECTION.query(setAmountOfSender, handleQuery.bind(null, doNothing));
+
+    CONNECTION.query(requestAmountOfReceiver, (err, result) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      const { amount } = result[0];
+      const newAmountOfReceiver = amount + +payAmount;
+      const setAmountOfReceiver = queryMessage.updateAmount(
+        newAmountOfReceiver,
+        usernameOfReceiver
+      );
+      CONNECTION.query(setAmountOfReceiver, (err, result) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        CONNECTION.query(requestAmountOfSender, (err, result) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          res.json(result[0]);
+        });
+      });
+    });
+  });
+};
+
+const updateAmount = function(username, addedAmount) {
+  const requestAmount = queryMessage.requestAmount(username);
 
   CONNECTION.query(requestAmount, (err, result) => {
     if (err) {
@@ -39,11 +91,10 @@ const handleTransaction = function(req, res) {
       return;
     }
     const { amount } = result[0];
-    const newAmount = amount + +payAmount;
-    const setAmount = queryMessage.updateAmount(newAmount, usernameOfReceiver);
+    const newAmount = addedAmount + amount;
+    const setAmount = queryMessage.updateAmount(newAmount, username);
 
-    const doNothing = () => {};
-    CONNECTION.query(setAmount, handleQuery.bind(null, doNothing));
+    CONNECTION.query(setAmount, (err, result) => {});
   });
 };
 
