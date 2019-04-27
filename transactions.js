@@ -29,4 +29,22 @@ const sendCurrentAmount = function(req, res) {
   CONNECTION.query(requestAmountMessage, handleQuery.bind(null, sendAmount));
 };
 
-module.exports = { updateAmountToDB, sendCurrentAmount };
+const handleTransaction = function(req, res) {
+  const { usernameOfReceiver, payAmount } = JSON.parse(req.body);
+  const requestAmount = queryMessage.requestAmount(usernameOfReceiver);
+
+  CONNECTION.query(requestAmount, (err, result) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const { amount } = result[0];
+    const newAmount = amount + +payAmount;
+    const setAmount = queryMessage.updateAmount(newAmount, usernameOfReceiver);
+
+    const doNothing = () => {};
+    CONNECTION.query(setAmount, handleQuery.bind(null, doNothing));
+  });
+};
+
+module.exports = { updateAmountToDB, sendCurrentAmount, handleTransaction };
